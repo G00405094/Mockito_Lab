@@ -8,8 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,6 +40,21 @@ class ProductServiceTest {
         Product product = new Product(1L, "Laptop", "Expensive", -1500);
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> productService.saveProduct(product));
         assertEquals("Price cannot be negative", iae.getMessage());
+    }
+
+    @Test
+    void testGetProductById() {
+        Product product = new Product(1L, "Product 1", "Description", 100.0);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        Product result = productService.getProductById(1L).orElse(null);
+        assertNotNull(result);
+        assertEquals("Product 1", result.getName());
+    }
+    @Test
+    void testValidateProductForEmptyName() {
+        Product product = new Product(1L, "", "hi", 890);
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> productService.saveProduct(product));
+        assertEquals("Product name cannot be empty", iae.getMessage());
     }
 
 }
